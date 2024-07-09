@@ -105,7 +105,7 @@ yarn build
 ### 4. Класс Model
 
 Класс `Model<T>` 
-абстрактный базовым классом для создания моделей данных в сервисе. Он предоставляет базовый функционал для работы с данными и уведомлений о изменениях в данных. Класс наследуется другими классами.
+абстрактный базовый класс для создания моделей данных в сервисе. Он предоставляет базовый функционал для работы с данными и уведомлений о изменениях в данных. Класс наследуется другими классами.
 
 `constructor(data: Partial<T>, protected events: IEvents)` -  Принимает частичные данные `data` типа `Partial` и объект брокера событий `events`, реализующий интерфейс `IEvents` и использующийся для уведомления об изменениях в данных.
 
@@ -186,6 +186,13 @@ yarn build
 - `validateAddress(): void` - проверка адреса доставки
 - `set email(value: string)` - установка почты
 - `get email()` - получение почты
+- `validateEmail(): void` - проверка почты
+- `set phone(value: string)` - установка телефона
+- `get phone()` - получение телефона
+- `validatePhone(): void` - проверка телефона
+- `set items(value: ILot[])` - установка списка лотов в заказе
+- `get items()` - получение списка лотов заказа
+- `postOrder(): void` - отправка заказа
 
 ## Компоненты представления
 
@@ -193,22 +200,61 @@ yarn build
 
 Класс `Basket` представляет собой корзину. Он позволяет задать следующие элементы:
 
-- `list`: список элементов в корзине.
-- `total`: общую стоимость корзины.
-- `button`: кнопку открытия формы оформления заказа. Вызов этой кнопки вызывает событие `order_payment:open`.
+- `list: HTMLElement`: список элементов в корзине.
+- `total: HTMLElement`: общую стоимость корзины.
+- `button: HTMLElement`: кнопку открытия формы оформления заказа. Вызов этой кнопки вызывает событие `order_payment:open`.
+
+`constructor(container: HTMLElement, events: EventEmitter) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
+
+Методы:
+
+- `set items(items: HTMLElement[])` - утснавливаент элементы корзины
+- `set total(total: number)` - устанавливает стоимость корзины
+- `set valid(value: boolean)` - устанавливает валидность заказа и меняет состояние кнопки заказа
 
 ### 2. Класс BasketItem
 
 Класс `BasketItem` - элементы корзины. Он позволяет задать следующие свойства:
 
-- `index`: номер элемента в корзине.
-- `title`: название элемента.
-- `price`: стоимость элемента.
-- `deleteBtn`: кнопку удаления элемента из корзины.
+- `index: HTMLElement`: номер элемента в корзине.
+- `title: HTMLElement`: название элемента.
+- `price: HTMLElement`: стоимость элемента.
+- `deleteBtn: HTMLElement`: кнопку удаления элемента из корзины.
+
+`constructor(container: HTMLElement, events: IEvents, actions?: ICardActions) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
+
+Методы: 
+
+- `set index(value: number)` - устанавливает индекс лота в корзине
+- `set title(value: string)` - устанавливает название лота
+- `set price(value: number)` - устанавливает цену лота
 
 ### 3. Класс Card
 
+Поля: 
+
+- `category: HTMLElement` - Элемент для отображения категории
+- `title: HTMLElement` - Элемент для отображения заголовка
+- `image?: HTMLImageElement` - Элемент для отображения изображения
+- `description: HTMLElement` - Элемент для отображения описания
+- `button: HTMLButtonElement` - Элемент кнопки
+- `price: HTMLElement` - Элемент для отображения цены
+
 Класс `Card` - это карточка каждого лота.
+
+`constructor(protected blockName: string, container: HTMLElement, events: IEvents, actions?: ICardActions) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
+
+Методы: 
+
+- `set category(value: ILotCategory)` - установка категории
+- `set title(value: string)` - установка названия карточки
+- `set image(value: string)` - утсановка картинка карточки
+- `set description(value: string)` - установка описания карточки
+- `set price(value: number)` - установка цены
+- `set button(value: string)` - установка текста на кнопке
 
 ### 4. Класс ContactsForm
 
@@ -216,8 +262,16 @@ yarn build
 
 Он позволяет задать следующие свойства:
 
-- `email`: почта.
-- `phone`: телефон.
+- `email: HTMLInputElement`: почта.
+- `phone: HTMLInputEle`: телефон.
+
+`constructor(container: HTMLFormElement, events: IEvents) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Form`
+
+Метды: 
+
+- `set phone(value: string)` - устновка телефона в форме
+- `set email(value: string)` - установка почты в форме
 
 ### 5. Класс DeliveryForm
 
@@ -225,48 +279,100 @@ yarn build
 
 Он позволяет задать следующие свойства:
 
-- `payment`: способ оплаты.
-- `address`: адрес доставки.
+- `payment: IPaymentType`: способ оплаты.
+- `address: string`: адрес доставки.
+
+Методы: 
+
+- `setClassPaymentMethod(className: string): void` - управление стилем кнопки в зависимости от выбранного способа оплаты
+- `set payment(value: string)` - установка способа оплаты
+- `set address(value: IPaymentType)` - установка адреса
 
 ### 6. Класс Form
 
 Класс `Form` - базовая форма. Он позволяет задать следующие элементы:
 
-- `submit`: кнопка отправки формы.
-- `errors`: отображение ошибок валидации.
+- `submit: HTMLButtonElement`: кнопка отправки формы.
+- `errors: HTMLElement`: отображение ошибок валидации.
+
+`constructor(protected container: HTMLFormElement, events: IEvents) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
 
 На все отображение привязывается событие `input` для вызова событий вида `container.field:change` и событие `container:submit`.
+
+Методы: 
+
+- `onInputChange(field: keyof T, value: string): void` - обработка изменений в поле ввода
+- `set valid(value: boolean)` - установка состояния валидности
+- `set errors(value: string[])` - установка сообщений об ошибках
+- `render(state: Partial<T> & IFormState): HTMLFormElement` - рендер формы с указанным состоянием
 
 ### 7. Класс Modal
 
 Класс `Modal` - модальное окно. Он позволяет задать следующие элементы:
 
-- `content`: отображение внутреннего содержимого модального окна.
-- `closeButton`: для отображения кнопки закрытия модалки.
+- `content: HTMLElement`: отображение внутреннего содержимого модального окна.
+- `closeButton: HTMLButtonElement`: для отображения кнопки закрытия модалки.
+
+`constructor(container: HTMLElement, events: IEvents) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
 
 Класс привязывает событие закрытия модального окна `modal:close` к кликам по кнопке закрытия формы и по родительскому контейнеру модального окна.
+
+Методы: 
+
+- `set content(value: HTMLElement)` - установка содержимого
+- `open(): void` - открытие модального окна
+- `close(): void` - закрытие модельного окна
+- `render(data: IModalData): HTMLElement` - рендер модального окна
 
 ### 8. Класс Page
 
 Класс `Page` - всея страница. Он позволяет задать следующие элементы:
 
-- `counter`: отображение количества товаров в корзине.
-- `gallery`: отображение доступных лотов.
-- `wrapper`: обёртка, позволяющая блокировать прокрутку страницы при открытии модального окна.
-- `basket`: кнопка отображения корзины. Клик по кнопке вызывает событие `basket:open`.
+- `counter: HTMLElement`: отображение количества товаров в корзине.
+- `gallery: HTMLElement`: отображение доступных лотов.
+- `wrapper: HTMLElement`: обёртка, позволяющая блокировать прокрутку страницы при открытии модального окна.
+- `basket: HTMLButtonElement`: кнопка отображения корзины. Клик по кнопке вызывает событие `basket:open`.
+
+`constructor(container: HTMLElement, events: IEvents) {
+		super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
+
+Методы: 
+ - `set counter(value: number)` - установка количества лотов в корзине
+ - `set galery(items: HTMLElement[])` - обновление списка карточек в галерее
+ - `set locked(value: boolean)` - обработка блокировки прокрутки страницы
 
 ### 9. Класс Success
 
 Класс `Success` определяет отображение основной информации об оформленном заказе, такой как общая сумма заказа.
 
+Поля: 
+
+- `close: HTMLElement` - Элемент для закрытия страницы
+- `protected _total: HTMLElement` - Элемент для отображения общей стоимости заказа
+
+` constructor(container: HTMLElement, events: IEvents, actions: ISuccessActions) {
+        super(container, events);` конструкотор, вызывает внутри себя конструктор класса `Component`
+
+ Методы:
+
+ - `set total(value: number)` - установка общей стоимости заказа
+
 ## СВЯЗИ
 
 ### LarekAPI
 
+**Поля:**
+- `cdn: string` - URL для CDN
+
+`constructor(cdn: string, baseUrl: string, options?: RequestInit) {
+		super(baseUrl, options);` - конструкотор, вызывает внутри себя конструктор класса `Api`
+
 **Методы:**
-- `getLotItem`: Запрос информации по лоту.
-- `getLotList`: Запрос информации по всем лотам.
-- `postOrderLots`: Оформление заказа.
+- `getLotItem(id: string): Promise<ILot>`: Запрос информации по лоту.
+- `getLotList(): Promise<ILot[]>`: Запрос информации по всем лотам.
+- `postOrderLots(order: IOrderAPI): Promise<IOrderResult>`: Оформление заказа.
 
 ## Типы данных
 ```typescript
